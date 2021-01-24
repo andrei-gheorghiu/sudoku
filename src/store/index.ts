@@ -3,6 +3,7 @@ import { Cell, ICell } from '@/types'
 
 export interface State {
   inputMode: boolean;
+  activeValue: number;
   hoveredValue: number;
   cells: Cell[],
   groups: number[][]
@@ -28,7 +29,8 @@ const cellGroups = {
 
 export const store = createStore<State>({
   state: {
-    inputMode: true,
+    inputMode: false,
+    activeValue: 1,
     hoveredValue: 0,
     cells: [...new Array(81).keys()]
       .map((_, k) => new Cell({
@@ -41,6 +43,9 @@ export const store = createStore<State>({
   mutations: {
     setHoveredValue (state, value) {
       state.hoveredValue = value
+    },
+    setActiveValue (state, value) {
+      state.activeValue = value
     },
     setCells (state, cells) {
       cells.forEach((cell: ICell) => {
@@ -62,7 +67,6 @@ export const store = createStore<State>({
         const b = !cell.marks.includes(value)
         if ((a && b) || !(a || b)) {
           cell.mark(value)
-          console.log(index, value, cell.marks)
         }
       })
     },

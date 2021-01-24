@@ -20,16 +20,17 @@
                    @mouseenter="onMouseEnter(cell)"
                    @mouseleave="onMouseLeave"
                    @mark="mark($event, cell)"
+                   @valueClick="onValueClick(cell)"
       ></cell-record>
     </div>
     <div class="d-flex justify-content-center mt-5">
       <div class="btn-group btn-group-lg">
         <button v-for="key in 9"
                 :key="key"
-                class="btn btn-dark"
-                @mouseenter="setHoveredValue(key)"
-                @mouseleave="setHoveredValue(0)"
-                @click="placeMarks(key)">{{ key }}</button>
+                class="btn"
+                :class="inputMode && (activeValue !== key)? 'btn-outline-dark' : 'btn-dark'"
+                @click="onBottomRowClick(key)">{{ key }}
+        </button>
       </div>
     </div>
   </div>
@@ -59,6 +60,7 @@ export default defineComponent({
         store.commit('setInputMode', value)
       }
     })
+    const activeValue = computed((): number => store.state.activeValue)
     const hoveredValue = computed((): number => store.state.hoveredValue)
     const cells = computed((): Cell[] => store.state.cells)
 
@@ -91,18 +93,24 @@ export default defineComponent({
           : null
         : null
     }
-    const placeMarks = (value: number) => store.dispatch('placeMarks', value)
+    const setActiveValue = (n: number) => store.commit('setActiveValue', n)
+    const onBottomRowClick = (n: number) => inputMode.value ? setActiveValue(n) : placeMarks(n)
+    const placeMarks = (n: number) => store.dispatch('placeMarks', n)
     const mark = (value: number, cell: UnwrapRef<Cell>) => {
       inputMode.value
         ? store.commit('setCellValue', {
           index: cell.x + cell.y * 9,
-          value
+          value: activeValue.value
         })
         : cell.mark(value)
     }
+    const onValueClick = (cell: UnwrapRef<Cell>) => inputMode.value && cell.value
+      ? store.commit('setCellValue', { index: cell.x + cell.y * 9, value: null })
+      : store.dispatch('placeMarks', cell.value)
     return {
       inputMode,
       cells,
+      activeValue,
       hoveredValue,
       onMouseEnter,
       onMouseLeave,
@@ -110,6 +118,8 @@ export default defineComponent({
       getHoveredMark,
       setHoveredValue,
       placeMarks,
+      onBottomRowClick,
+      onValueClick,
       mark
     }
   },
@@ -177,14 +187,19 @@ $fieldBorder: #a5e2ff;
         &.marked {
           color: #ccc;
           opacity: 1;
+          &.active {
+            color: #f50;
+            background-color: #ff550011
+          }
         }
-        &.active {
-          opacity: 1;
-          color: #f50;
-          background-color: #ff550011
+
+      }
+      &:hover > * {
+        opacity: 1;
+        &.marked {
+          color: #f50
         }
       }
-      &:hover > * { opacity: 1 }
     }
     svg {
       background-color: $bg;

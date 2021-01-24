@@ -12,16 +12,15 @@
               v-text="key"
               :key="key"
               @click="mark(key)"
-              :class="{ marked: cell.marks.includes(key), active: hoveredMark === key }" />
+              :class="{ marked: cell.marks.includes(key), active: hoveredMark === key || (inputMode && (activeValue === key)) }" />
       </span>
     </transition>
   </span>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { computed, defineComponent } from 'vue'
 import { Cell } from '@/types'
-import { StoreType } from '@/store'
 import { useStore } from 'vuex'
 export default defineComponent({
   name: 'CellRecord',
@@ -36,10 +35,14 @@ export default defineComponent({
     }
   },
   setup (props, { emit }) {
-    const store: StoreType = useStore()
+    const store = useStore()
+    const inputMode = computed(() => store.state.inputMode)
+    const activeValue = computed(() => store.state.activeValue)
     const mark = (n: number) => emit('mark', n)
-    const placeMarks = () => store.dispatch('placeMarks', props.cell.value)
+    const placeMarks = () => emit('valueClick')
     return {
+      inputMode,
+      activeValue,
       mark,
       placeMarks
     }
