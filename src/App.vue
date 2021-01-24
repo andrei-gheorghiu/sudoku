@@ -1,27 +1,74 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js + TypeScript App"/>
+  <header>
+    <navbar />
+  </header>
+  <main role="main" class="container">
+    <sudoku-board />
+  </main>
+  <footer class="footer">
+    <div class="container">
+      <span class="text-muted">Place sticky footer content here.</span>
+    </div>
+  </footer>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import HelloWorld from './components/HelloWorld.vue'
+import Navbar from './components/Navbar.vue'
+import SudokuBoard from './components/SudokuBoard.vue'
 
 export default defineComponent({
   name: 'App',
   components: {
-    HelloWorld
+    Navbar,
+    SudokuBoard
   }
 })
 </script>
 
-<style>
+<style lang="scss">
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+  background-image: url("assets/paper.png");
+  background-repeat: repeat;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  > * {
+    width: 100%;
+    flex-grow: 0;
+  }
+  main {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+  }
+  footer {
+    padding: 1rem;
+    background-color: #f3f3f3;
+    border-top: 1px solid #fff;
+  }
+  .cell > span {
+    cursor: pointer;
+  }
+  .scale-enter-active, .scale-leave-active {
+    transition: all .35s cubic-bezier(.4,0,.2,1);
+    opacity: 0;
+    transform: scale(.5);
+  }
+  .scale-enter-to, .scale-leave-to {
+    opacity: 1;
+    transform: scale(1);
+  }
+  .custom-switch {
+    pointer-events: none;
+  }
+  .switch-container {
+    cursor: pointer;
+    border-radius: 30px;
+    transition: background-color .35s cubic-bezier(.4,0,.2,1);
+    &:hover {
+      background-color: rgba(255,255,255,.42);
+    }
+  }
 }
 </style>
