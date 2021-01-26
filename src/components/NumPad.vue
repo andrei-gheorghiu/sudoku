@@ -150,7 +150,7 @@ export default defineComponent({
       align-items: center;
       justify-content: center;
     }
-    &:hover {
+    &:hover:not(.toggle) {
       background-color: rgba(207, 241, 255, 0.42);
       border-color: #a5e2ff;
     }
@@ -173,7 +173,7 @@ export default defineComponent({
       color: #ccc;
     }
     &.cell-mark.lit {
-      color: #f50;
+      color: #69c;
     }
   }
   .action-button {

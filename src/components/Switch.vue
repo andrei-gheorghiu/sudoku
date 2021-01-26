@@ -42,6 +42,7 @@ export default defineComponent({
 <style scoped lang="scss">
 $switch-container-width: 50px;
 $switch-size: calc(#{$switch-container-width} / 2);
+$switch-color: #57c9ff;
 
 .switch-container {
   cursor: pointer;
@@ -71,7 +72,7 @@ $switch-size: calc(#{$switch-container-width} / 2);
   flex-basis: $switch-container-width;
   border-radius: $switch-size;
   transition: background-color 0.25s ease-in-out;
-  background-color: var(--info);
+  background-color: $switch-color;
   flex-shrink: 0;
 
   &:before {
@@ -83,27 +84,27 @@ $switch-size: calc(#{$switch-container-width} / 2);
     border-radius: 50px;
     background-color: white;
     transition: transform 0.21s cubic-bezier(.4,0,.2,1);
-    border: 2px solid var(--info);
+    border: 2px solid darken($switch-color, 5);
   }
 }
 
 .input:checked + .switch {
-  background-color: var(--info);
+  background-color: $switch-color;
 }
 
 .input:checked + .switch::before {
-  border-color: var(--teal);
+  border-color: darken($switch-color, 5);
   transform: translateX(
       calc(#{$switch-container-width} - #{$switch-size})
   );
 }
 
 .input:focus + .switch::before {
-  border-color: var(--info);
+  border-color: darken($switch-color, 5);
 }
 
 .input:focus:checked + .switch::before {
-  border-color: var(--info);
+  border-color: darken($switch-color, 5);
 }
 
 .input:disabled + .switch {
@@ -130,7 +131,7 @@ $switch-size: calc(#{$switch-container-width} / 2);
     color: #999;
   }
   &.checked {
-    color: var(--info);
+    color: $switch-color;
   }
 }
 
