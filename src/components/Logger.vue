@@ -1,5 +1,5 @@
 <template>
-  <pre v-text="{ inputMode, activeValue, hoveredValue }" />
+  <pre v-text="{ usePad, activeCellIndex, activeValue, hoveredValue }" />
 </template>
 
 <script lang="ts">
@@ -9,10 +9,11 @@ export default defineComponent({
   name: 'Logger',
   setup () {
     const store = useStore()
-    const inputMode = computed(() => store.state.inputMode)
+    const usePad = computed(() => store.state.usePad)
+    const activeCellIndex = computed(() => store.state.activeCellIndex)
     const activeValue = computed(() => store.state.activeValue)
     const hoveredValue = computed(() => store.state.hoveredValue)
-    return { inputMode, activeValue, hoveredValue }
+    return { usePad, activeValue, hoveredValue, activeCellIndex }
   }
 })
 </script>

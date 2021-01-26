@@ -1,11 +1,15 @@
 import { createStore } from 'vuex'
 import { Cell, ICell } from '@/types'
+import { toRaw } from 'vue'
 
 export interface State {
-  inputMode: boolean;
+  editingMode: 'marks' | 'values' | 'hints' | 'eraser';
+  usePad: boolean;
+  activeCellIndex: number;
   activeValue: number;
   hoveredValue: number;
   cells: Cell[],
+  clone: Cell[],
   groups: number[][]
 }
 
@@ -29,7 +33,9 @@ const cellGroups = {
 
 export const store = createStore<State>({
   state: {
-    inputMode: false,
+    editingMode: 'marks',
+    usePad: true,
+    activeCellIndex: 0,
     activeValue: 1,
     hoveredValue: 0,
     cells: [...new Array(81).keys()]
@@ -38,14 +44,24 @@ export const store = createStore<State>({
         x: (k + 9) % 9,
         y: Math.floor(k / 9)
       })),
+    clone: [],
     groups: Object.values(cellGroups).flat()
   },
   mutations: {
     setHoveredValue (state, value) {
       state.hoveredValue = value
     },
+    setActiveCellIndex (state, value) {
+      state.activeCellIndex = value
+    },
     setActiveValue (state, value) {
       state.activeValue = value
+    },
+    setEditingMode (state, value) {
+      state.editingMode = value
+    },
+    setUsePad (state, value) {
+      state.usePad = value
     },
     setCells (state, cells) {
       cells.forEach((cell: ICell) => {
@@ -53,16 +69,35 @@ export const store = createStore<State>({
         state.cells[cell.x + cell.y * 9].value = cell.value
       })
     },
-    setCellValue (state, { index, value }) {
-      state.cells[index].value = value
+    setCellProp (state, { index, update }) {
+      const cells = state.clone.length ? state.clone : state.cells
+      Object.keys(update).forEach(key => {
+        // @ts-ignore
+        cells[index][key] = update[key]
+      })
     },
-    reset (state) {
+    setCellValue (state, { index, value }) {
+      const cells = state.clone.length ? state.clone : state.cells
+      cells[index].value = value
+    },
+    clearCell (state, index) {
+      const cell = state.cells[index]
+      if (!cell.fixed) {
+        if (cell.value) {
+          cell.value = null
+        } else {
+          cell.marks = []
+        }
+      }
+    },
+    resetBoard (state) {
       state.cells.forEach(cell => {
         cell.value = null
       })
     },
     markCandidates (state, { candidates, value }) {
-      state.cells.forEach((cell, index) => {
+      const cells = state.clone.length ? state.clone : state.cells
+      cells.forEach((cell, index) => {
         const a = candidates.includes(index)
         const b = !cell.marks.includes(value)
         if ((a && b) || !(a || b)) {
@@ -70,37 +105,71 @@ export const store = createStore<State>({
         }
       })
     },
-    setInputMode (state, value) {
-      state.inputMode = value
+    setClone (state) {
+      state.clone = state.cells.map((cell: Cell) => {
+        const c = toRaw(cell)
+        return new Cell({
+          value: c.fixed ? c.value : null,
+          fixed: c.fixed,
+          x: c.x,
+          y: c.y
+        })
+      })
+    },
+    markCell (state, { index, key }) {
+      const cell: Cell = (state.clone.length ? state.clone : state.cells)[index]
+      cell.mark(key)
     }
   },
   actions: {
     placeMarks ({ getters, state, commit, dispatch }, value) {
-      const candidates = state.cells.filter(c =>
-        !c.value && !getters.siblings(c.x, c.y).map((c: Cell) => c.value).includes(value)
-      ).map(c => state.cells.findIndex(cell => cell === c))
+      const cells = state.clone.length ? state.clone : state.cells
+      const candidates = cells.filter(c =>
+        !c.value && !getters.siblings(c).map((c: Cell) => c.value).includes(value)
+      ).map(c => cells.findIndex(cell => cell === c))
       const group = state.groups.find(g => g.filter(cellIndex => candidates.includes(cellIndex)).length === 1)
       if (group) {
         const index = candidates.find(cellIndex => group.includes(cellIndex))
         if (index) {
-          commit('setCellValue', { index, value })
-          dispatch('placeMarks', value)
+          commit('setCellProp', { index, update: { value } })
+          return dispatch('placeMarks', value)
         }
       } else {
         commit('markCandidates', { candidates, value })
       }
+      return 42
+    },
+    enterCell ({ getters, state, commit }, index) {
+      const cell = state.cells[index]
+      commit('setHoveredValue', cell.value)
+      getters.siblings(cell).forEach((c: Cell) => {
+        commit('setCellProp', { index: c.index, update: { lit: true } })
+      })
+    },
+    exitCell ({ getters, state, commit }, index) {
+      const cell = state.cells[index]
+      commit('setHoveredValue', 0)
+      getters.siblings(cell).forEach((c: Cell) => {
+        commit('setCellProp', { index: c.index, update: { lit: false } })
+      })
+    },
+    async calculate ({ commit, state }) {
+      commit('setClone')
+      console.log(state.clone)
     }
   },
   getters: {
-    siblings: (state): (x: number, y: number) => Cell[] => (x, y) => state.cells.filter(
-      c =>
-        c.x === x ||
-        c.y === y ||
-        (
-          Math.floor(c.x / 3) === Math.floor(x / 3) &&
-          Math.floor(c.y / 3) === Math.floor(y / 3)
-        )
-    )
+    siblings: (state): (cell: Cell) => Cell[] => (cell) =>
+      (state.clone.length ? state.clone : state.cells).filter(
+        c =>
+          c.x === cell.x ||
+          c.y === cell.y ||
+          (
+            Math.floor(c.x / 3) === Math.floor(cell.x / 3) &&
+            Math.floor(c.y / 3) === Math.floor(cell.y / 3)
+          )
+      ),
+    activeCell: (state) => state.cells[state.activeCellIndex]
   },
   modules: {}
 })

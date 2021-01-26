@@ -10,21 +10,18 @@
       <span class="text-muted">Place sticky footer content here.</span>
     </div>
   </footer>
-  <logger></logger>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
 import Navbar from './components/Navbar.vue'
 import SudokuBoard from './components/SudokuBoard.vue'
-import Logger from './components/Logger.vue'
 
 export default defineComponent({
   name: 'App',
   components: {
     Navbar,
-    SudokuBoard,
-    Logger
+    SudokuBoard
   }
 })
 </script>
@@ -50,7 +47,7 @@ export default defineComponent({
     background-color: #f3f3f3;
     border-top: 1px solid #fff;
   }
-  .cell > span {
+  .cell > * {
     cursor: pointer;
   }
   .scale-enter-active, .scale-leave-active {
@@ -61,17 +58,6 @@ export default defineComponent({
   .scale-enter-to, .scale-leave-to {
     opacity: 1;
     transform: scale(1);
-  }
-  .custom-switch {
-    pointer-events: none;
-  }
-  .switch-container {
-    cursor: pointer;
-    border-radius: 30px;
-    transition: background-color .35s cubic-bezier(.4,0,.2,1);
-    &:hover {
-      background-color: rgba(255,255,255,.42);
-    }
   }
 }
 </style>

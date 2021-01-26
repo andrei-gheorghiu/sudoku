@@ -1,0 +1,111 @@
+$bg: rgba(255,255,255,.42);
+$cellBorder: #e3e9ef;
+$fieldBorder: #a5e2ff;
+.aspect-ratio {
+  display: grid;
+  > * {
+    grid-area: 1/1;
+  }
+  > svg {
+    width: 100%;
+  }
+}
+.board {
+  outline: 15px solid rgba(255,255,255,.42);
+  outline-offset: 2px;
+  display: flex;
+  flex-wrap: wrap;
+  max-width: 568px;
+  margin: 0 auto;
+  &.cell-selection .cell > * {
+    pointer-events: none;
+  }
+  .cell {
+    cursor: pointer;
+    font-family: 'Hachi Maru Pop', cursive;
+    flex: 0 0 calc(100%/9 - 2px);
+    margin: 1px;
+    position: relative;
+    &.active {
+      outline: 5px solid #57c9ff33;
+      outline-offset: 2px;
+      z-index: 1;
+      background-color: #57c9ff33;
+      color: white;
+    }
+    > span {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      color: #69c;
+      &.fixed {
+        color: #000;
+      }
+    }
+    .grid {
+      display: flex;
+      flex-wrap: wrap;
+      > * {
+        font-size: 11px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 33%;
+        height: 33%;
+        border-radius: 50%;
+        color: #ccc;
+        opacity: 0;
+        font-weight: bold;
+        &.marked {
+          color: #ccc;
+          opacity: 1;
+          &.active {
+            color: #f50;
+            background-color: #ff550011
+          }
+        }
+      }
+    }
+    .active .grid > * {
+      background-color: #fff;
+    }
+    svg {
+      background-color: $bg;
+      transition: background-color .21s cubic-bezier(.4,0,.2,1);
+      border: 1px solid transparent;
+    }
+    &:nth-child(3n + 1):not(:nth-child(9n + 1)) svg {
+      border-left-color: $fieldBorder;
+    }
+    &:nth-child(3n):not(:nth-child(9n)) svg {
+      border-right-color: $fieldBorder;
+    }
+    &:nth-child(n+28):nth-child(-n+36),
+    &:nth-child(n+55):nth-child(-n+63) {
+      svg {
+        border-top-color: $fieldBorder;
+      }
+    }
+    &:nth-child(n+19):nth-child(-n+27),
+    &:nth-child(n+46):nth-child(-n+54) {
+      svg {
+        border-bottom-color: $fieldBorder;
+      }
+    }
+    &:hover, &.h-light {
+      svg {
+        background-color: rgba(255,255,255,.84);
+      }
+    }
+    &.hovered:not(:hover) > span {
+      color: #f50;
+    }
+    &.lit svg {
+      background-color: rgba(255, 255, 255, .8);
+    }
+    &.active svg {
+      background-color: rgba(255, 255, 255, .67);
+    }
+  }
+}

@@ -8,6 +8,10 @@ export class Cell implements ICell {
     this._data = Object.assign({}, data)
   }
 
+  get index () {
+    return this._data.x + this._data.y * 9
+  }
+
   get x () {
     return this._data.x
   }
@@ -25,11 +29,11 @@ export class Cell implements ICell {
   }
 
   get fixed () {
-    return this._data.fixed
+    return !!this._data.fixed
   }
 
   set fixed (val) {
-    this._data.fixed = val
+    this._data.fixed = !!val
   }
 
   get lit () {
@@ -42,6 +46,10 @@ export class Cell implements ICell {
 
   get marks () {
     return this._data.marks || []
+  }
+
+  set marks (value) {
+    this._data.marks = value
   }
 
   mark (n: number) {
